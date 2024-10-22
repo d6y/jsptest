@@ -1,0 +1,76 @@
+<!--
+
+build.xml - ant configuration file for compiling and deploying JSPTest
+
+$Author: richard $
+$Revision: 1.2 $ $Date: 2000/08/18 09:27:48 $
+
+-->
+
+<project name="jsptest" default="deploy" basedir=".">
+
+<target name="deploy" depends="testall,jar,javadoc,init">
+	<copydir src="wwwtest" dest="deploy/wwwtest" defaultexcludes="yes" />
+	<copydir src="apidoc" dest="deploy/apidoc" defaultexcludes="yes" />
+	<copyfile src="jsptest.jar" dest="deploy"/>
+
+	<copyfile src="build.xml" dest="deploy/build.xml" />
+	<copyfile src="readme.txt" dest="deploy/readme.txt" />
+	<copyfile src="jsptest.html" dest="deploy/jsptest.html" />
+	<copyfile src="jsptest.jpr" dest="deploy/jsptest.jar"/>
+
+	<copyfile src="com/dallaway/jsptest/Example1.java" dest="deploy/Example1.txt"/>
+</target>
+
+<target name="javadoc" depends="prepare">
+	<javadoc packagenames="com.dallaway.jsptest" sourcepath="." destdir="apidoc"/>
+</target>
+
+<target name="jar" depends="compile">
+	<jar jarfile="deploy/jsptest.jar" compress="no" basedir="deploy/bin" />
+</target>
+
+<target name="testall" depends="jar,init">
+<java classname="com.dallaway.jsptest.JSPTestTest" fork="yes" failonerror="yes">
+    <classpath>
+    	<pathelement location="c:/classes/junit3.2/junit.jar" />
+		<pathelement location="deploy/jsptest.jar" />
+   	</classpath>
+ </java>
+</target>
+
+
+<target name="init">
+    <tstamp/>
+    <property name="deploy" value="deploy" />
+    <property name="src"  value="." />
+    <property name="lib"  value="c:/classes" />
+	<property name="javadoc"  value="apidoc" />
+</target>
+
+
+<target name="prepare" depends="clean">
+	<mkdir dir="${javadoc}" />
+    <mkdir dir="${deploy}" />
+    <mkdir dir="${deploy}/src" />
+	<mkdir dir="${deploy}/bin" />
+	<mkdir dir="${deploy}/apidoc" />
+	<mkdir dir="${deploy}/wwwtest" />
+</target>
+
+
+<target name="clean" depends="init">
+	<deltree dir="${deploy}" />
+</target>
+
+
+<target name="compile" depends="prepare">
+	<copydir src="${src}/com" dest="${deploy}/src/com" defaultexcludes="yes" includes="**/*.java" />
+    <javac srcdir="${deploy}/src" destdir="${deploy}/bin" filtering="on" deprecation="off">
+    <classpath>
+    	<pathelement location="${lib}/junit3.2/junit.jar" />
+	</classpath>
+   </javac>
+</target>
+
+</project>
